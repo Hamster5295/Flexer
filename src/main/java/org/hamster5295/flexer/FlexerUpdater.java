@@ -45,7 +45,7 @@ public class FlexerUpdater implements Runnable {
 
             for (Flexer f : flexers) {
                 if (f.getState() == Flexer.State.RUNNING)
-                    f.getEvent().onLateUpdate(f);
+                    f.lateUpdateTask.run(f);
             }
 
             long spentTime = System.currentTimeMillis() - startTime;

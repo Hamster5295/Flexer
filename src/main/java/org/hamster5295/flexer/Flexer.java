@@ -22,10 +22,6 @@ public class Flexer implements IUpdatable {
         return state;
     }
 
-    protected IFlexerEvent getEvent() {
-        return event;
-    }
-
     private float value = 0;
     private float targetValue = 0;
     private float animateSpeed = 0.1f;
@@ -34,11 +30,11 @@ public class Flexer implements IUpdatable {
 
     private State state;
 
-    private Runnable updateTask = () -> {
+    protected FlexerTask updateTask = (flexer) -> {
         value = animateSpeed * targetValue + (1 - animateSpeed) * value;
         if (Math.abs(value - targetValue) <= minimumDifference) {
             value = targetValue;
-            Flexer.this.event.onFinished(Flexer.this);
+            flexer.finishedTask.run(Flexer.this);
 
             if (stopOnFinished) {
                 stop();
@@ -46,7 +42,16 @@ public class Flexer implements IUpdatable {
         }
     };
 
-    private IFlexerEvent event;
+    protected FlexerTask lateUpdateTask = flexer -> {
+    };
+    protected FlexerTask pausedTask = flexer -> {
+    };
+    protected FlexerTask resumedTask = flexer -> {
+    };
+    protected FlexerTask finishedTask = flexer -> {
+    };
+    protected FlexerTask stoppedTask = flexer -> {
+    };
 
     public void start() {
         if (state != State.READY) return;
@@ -60,19 +65,20 @@ public class Flexer implements IUpdatable {
     public void pause() {
         if (state == State.STOPPED) return;
         state = State.PAUSED;
-        event.onPaused(this);
+        pausedTask.run(this);
     }
 
     public void resume() {
         if (state != State.PAUSED) return;
         state = State.RUNNING;
-        event.onResumed(this);
+        resumedTask.run(this);
     }
 
     public void stop() {
         if (state == State.STOPPED) return;
         state = State.STOPPED;
-        event.onStopped(this);
+        stoppedTask.run(this);
+        FlexerUpdater.remove(this);
     }
 
     public void setTargetValue(float targetValue) {
@@ -81,7 +87,7 @@ public class Flexer implements IUpdatable {
 
     @Override
     public void update() {
-        updateTask.run();
+        updateTask.run(this);
     }
 
     public static class Builder {
@@ -116,13 +122,33 @@ public class Flexer implements IUpdatable {
             return this;
         }
 
-        public Builder onUpdate(Runnable task) {
+        public Builder update(FlexerTask task) {
             flexer.updateTask = task;
             return this;
         }
 
-        public Builder event(IFlexerEvent event) {
-            flexer.event = event;
+        public Builder lateUpdate(FlexerTask task) {
+            flexer.lateUpdateTask = task;
+            return this;
+        }
+
+        public Builder onPaused(FlexerTask task) {
+            flexer.pausedTask = task;
+            return this;
+        }
+
+        public Builder onResumed(FlexerTask task) {
+            flexer.resumedTask = task;
+            return this;
+        }
+
+        public Builder onFinished(FlexerTask task) {
+            flexer.finishedTask = task;
+            return this;
+        }
+
+        public Builder onStopped(FlexerTask task) {
+            flexer.stoppedTask = task;
             return this;
         }
 
