@@ -1,23 +1,48 @@
 package org.hamster5295.flexer;
 
+/**
+ * The Flexer main class. Defines an flexible value that can smoothly change into another by lerp.
+ * @author Hamster
+ * */
+
 public class Flexer implements IUpdatable {
 
+    /**
+     * Get the current value.
+     * @return current value
+     * */
     public float getValue() {
         return value;
     }
 
+    /**
+     * Get the target value.
+     * @return target value
+     * */
     public float getTargetValue() {
         return targetValue;
     }
 
+    /**
+     * Get the animate speed
+     * @return animate Speed
+     * */
     public float getAnimateSpeed() {
         return animateSpeed;
     }
 
+    /**
+     * Get the minimum difference when calculating value
+     * @return minimum difference
+     * */
     public float getMinimumDifference() {
         return minimumDifference;
     }
 
+    /**
+     * Get the current state of this Flexer
+     * @return the current state: READY, RUNNING,PAUSED, STOPPED
+     * */
     public State getState() {
         return state;
     }
@@ -53,6 +78,9 @@ public class Flexer implements IUpdatable {
     protected FlexerTask stoppedTask = flexer -> {
     };
 
+    /**
+     * Start the animation
+     * */
     public void start() {
         if (state != State.READY) return;
 
@@ -62,18 +90,27 @@ public class Flexer implements IUpdatable {
         state = State.RUNNING;
     }
 
+    /**
+     * Pause the animation
+     * */
     public void pause() {
         if (state == State.STOPPED) return;
         state = State.PAUSED;
         pausedTask.run(this);
     }
 
+    /**
+     * Resume the paused animation. Won't do anything when state is not PAUSED
+     * */
     public void resume() {
         if (state != State.PAUSED) return;
         state = State.RUNNING;
         resumedTask.run(this);
     }
 
+    /**
+     * Stop the animation, regardless of the state
+     * */
     public void stop() {
         if (state == State.STOPPED) return;
         state = State.STOPPED;
@@ -81,6 +118,9 @@ public class Flexer implements IUpdatable {
         FlexerUpdater.remove(this);
     }
 
+    /**
+     * Set the target value.
+     * */
     public void setTargetValue(float targetValue) {
         this.targetValue = targetValue;
     }

@@ -18,19 +18,19 @@ public class FlexerUpdater implements Runnable {
         updateThread.start();
     }
 
-    public static void add(Flexer flexer) {
+    protected static void add(Flexer flexer) {
         instance.flexers.add(flexer);
     }
 
-    public static void remove(Flexer flexer) {
+    protected static void remove(Flexer flexer) {
         instance.flexers.remove(flexer);
     }
 
-    public static boolean hasFlexer(Flexer flexer) {
+    protected static boolean hasFlexer(Flexer flexer) {
         return instance.flexers.contains(flexer);
     }
 
-    public static List<Flexer> getFlexers() {
+    protected static List<Flexer> getFlexers() {
         return instance.flexers;
     }
 
